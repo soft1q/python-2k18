@@ -1,7 +1,9 @@
+# coding: utf-8
 import re
 import json
 import argparse
 import sys
+import os
 
 
 def input_parser():
@@ -15,13 +17,22 @@ def input_parser():
     return parser
 
 
-def list_from_input(input_file):
-    """Преобразовывает входной текст к списку слов"""
+def list_from_file(input_file):
+    """Преобразовывает текст из данного файла к списку слов"""
     result_list = list()
     for line in input_file:
-        result_list.extend(re.findall(r'\w+', line))
-    if namespace.input_dir is not None:
-        input_file.close()
+        result_list.extend(re.findall(r'[a-zA-Zа-яА-Я]+', line))
+    return result_list
+
+
+def list_from_directory(input_dir):
+    """Преобразовывает все тексты из данной директории к списку слов"""
+    result_list = list()
+    for path, dirs, files in os.walk(input_dir):
+        for filename in files:
+            f = open(os.path.join(path, filename), 'r')
+            for line in f:
+                result_list.extend(re.findall(r'[a-zA-Zа-яА-Я]+', line))
     return result_list
 
 
@@ -43,15 +54,11 @@ def make_frequency_model(words_list):
 
 # Парсинг аргументов консольной команды
 namespace = input_parser().parse_args(sys.argv[1:])
-# Фиксируем файл ввода
+# Составляем список слов
 if namespace.input_dir is None:
-    f = sys.stdin
+    words = list_from_file(sys.stdin)
 else:
-    f = open(namespace.input_dir, 'r')
-# Составление списка всех слов в тексте
-words = list_from_input(f)
-if namespace.input_dir is not None:
-    f.close()
+    words = list_from_directory(namespace.input_dir)
 # Переводим слова в нижний регистр, если нужно
 if namespace.lc:
     for word in words:
