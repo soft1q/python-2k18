@@ -4,6 +4,7 @@ import json
 import argparse
 import sys
 import os
+from collections import defaultdict
 
 
 def input_parser():
@@ -11,9 +12,11 @@ def input_parser():
     parser = argparse.ArgumentParser(description="Обучение генератора текста")
     parser.add_argument('--input-dir', action='store', required=False,
                         metavar='input.txt', help="Путь к тексту для обучения")
-    parser.add_argument('--model', action='store', required=True,
-                        metavar='model.txt', help="Директория где сохранится модель")
-    parser.add_argument('--lc', action='store_true', required=False, help="Приводит все слова к нижнему регистру")
+    parser.add_argument('--model', action='store',
+                        required=True, metavar='model.txt',
+                        help="Директория где сохранится модель")
+    parser.add_argument('--lc', action='store_true', required=False,
+                        help="Приводит все слова к нижнему регистру")
     return parser
 
 
@@ -38,17 +41,9 @@ def list_from_directory(input_dir):
 
 def make_frequency_model(words_list):
     """Создает на основе списка слов модель \"пары - частоты\""""
-    result_dict = dict()
+    result_dict = defaultdict(lambda: defaultdict(int))
     for i in range(1, len(words_list)):
-        if namespace.lc:
-            words_list[i] = words_list[i].lower()
-        if words_list[i - 1] in result_dict.keys():
-            if words_list[i] in result_dict[words_list[i - 1]]:
-                result_dict[words_list[i - 1]][words_list[i]] += 1
-            else:
-                result_dict[words_list[i - 1]].update({words_list[i]: 1})
-        else:
-            result_dict.update({words_list[i - 1]: {words_list[i]: 1}})
+        result_dict[words_list[i-1]][words_list[i]] += 1
     return result_dict
 
 
@@ -61,8 +56,7 @@ else:
     words = list_from_directory(namespace.input_dir)
 # Переводим слова в нижний регистр, если нужно
 if namespace.lc:
-    for word in words:
-        word = word.lower()
+    words = ' '.join(words).lower().split()
 # Словарь словарей, хранящий частоты пар
 pairs_freq = make_frequency_model(words)
 # Загрузка модели в формате JSON

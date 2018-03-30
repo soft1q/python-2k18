@@ -7,16 +7,21 @@ import sys
 
 def input_parser():
     """Создает парсер аргументов для вызова из консоли"""
-    parser = argparse.ArgumentParser(description="Сгенерировать последовательность"
-                                                 " слов заданной длины начиная с заданного слова")
+    desc = "Сгенерировать последовательность слов заданной" \
+           " длины начиная с заданного слова"
+    help_model = "Директория где сохранится модель"
+    help_seed = "Начальное слово"
+    help_length = "Длина генерируемой последовательности"
+    help_output = "Файл для вывода сгенерированного текста"
+    parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--model', action='store', required=True,
-                        metavar='model.txt', help="Директория где сохранится модель")
+                        metavar='model.txt', help=help_model)
     parser.add_argument('--seed', action='store', required=False,
-                        metavar='word', help="Начальное слово")
-    parser.add_argument('--length', action='store', required=True, metavar='n', type=int,
-                        help="Длина генерируемой последовательности")
-    parser.add_argument('--output', action='store', required=False, metavar='output.txt',
-                        help="Файл для вывода сгенерированного текста")
+                        metavar='word', help=help_seed)
+    parser.add_argument('--length', action='store', required=True, metavar='n',
+                        type=int, help=help_length)
+    parser.add_argument('--output', action='store', required=False,
+                        metavar='output.txt', help=help_output)
     return parser
 
 
