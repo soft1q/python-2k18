@@ -11,10 +11,11 @@ def input_parser():
     """Создает парсер аргументов для вызова из консоли"""
     parser = argparse.ArgumentParser(description="Обучение генератора текста")
     parser.add_argument('--input-dir', action='store', required=False,
-                        metavar='input.txt', help="Путь к тексту для обучения")
+                        metavar='input.txt', help="Путь к директории с "
+                                                  "обучающими текстами")
     parser.add_argument('--model', action='store',
                         required=True, metavar='model.txt',
-                        help="Директория где сохранится модель")
+                        help="Путь к файлу, в который сохранится модель")
     parser.add_argument('--lc', action='store_true', required=False,
                         help="Приводит все слова к нижнему регистру")
     return parser
