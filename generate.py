@@ -1,3 +1,8 @@
+# Второй модуль проекта "Генератор текста"
+# Генерация последовательности слов по модели
+# Версия: 2.0
+# Создано: Левашов Артём, МФТИ ФИВТ 790, 2018
+
 # coding: utf-8
 import json
 import random
@@ -26,37 +31,58 @@ def input_parser():
     return parser
 
 
-namespace = input_parser().parse_args(sys.argv[1:])
-# Загрузка модели из файла в формате JSON
-f = open(namespace.model, 'r')
-model = json.load(f)
-f.close()
-# Фиксируем файл вывода
-if namespace.output is None:
-    f = sys.stdout
-else:
-    f = open(namespace.output, 'w')
-# Входные данные - начальное слово и длина последовательности
-if namespace.seed is None:
-    prevWord = random.choice(list(model.keys()))
-else:
-    if namespace.seed not in list(model.keys()):
+def choose_first_word(seed, freq_model):
+    """Выбирает первое слово в зависимости от seed"""
+    if seed is None:
+        return random.choice(list(freq_model.keys()))
+    elif seed not in list(freq_model.keys()):
         raise KeyError('Такого слова нет в модели!')
     else:
-        prevWord = namespace.seed
-n = namespace.length
-f.write(prevWord + ' ')
-# Генерирование текста с помощью выбора из всех последователей
-#   слова умноженных на частоту посредством random.choice
-for i in range(1, n):
-    choiceList = list()
-    try:
-        for word in model[prevWord].keys():
-            choiceList.extend([word] * model[prevWord][word])
-    except KeyError:
-        break
-    random.shuffle(choiceList)
-    prevWord = random.choice(choiceList)
-    f.write(prevWord + ' ')
-if namespace.output is not None:
-    f.close()
+        return seed
+
+
+def output_file(output):
+    """Определяет файл вывода или stdout"""
+    if output is None:
+        return sys.stdout
+    else:
+        try:
+            return open(output, 'w')
+        except OSError:
+            print("Не удалось открыть файл!")
+
+
+def close_output(file, output):
+    """Закрывает файл, если вывод не в консоль"""
+    if output is not None:
+        file.close()
+
+
+def generate_sequence(prev_word, model, output, length):
+    """Создание и вывод сгенерированной последовстельности"""
+    output.write(prev_word + ' ')
+    for i in range(1, length):
+        choice_list = list()
+        if prev_word in model.keys():
+            for word in model[prev_word].keys():
+                choice_list.extend([word] * model[prev_word][word])
+        else:
+            break
+        prev_word = random.choice(choice_list)
+        output.write(prev_word + ' ')
+
+
+if __name__ == "__main__":
+    namespace = input_parser().parse_args(sys.argv[1:])
+    # Загрузка модели из файла в формате JSON
+    with open(namespace.model, 'r') as f:
+        model = json.load(f)
+    # Определяем первое слово последовательности
+    firstWord = choose_first_word(namespace.seed, model)
+    n = namespace.length
+    # Фиксируем файл вывода
+    f = output_file(namespace.output)
+    # Генерирование текста с помощью выбора из всех последователей
+    #   слова умноженных на частоту посредством random.choice
+    generate_sequence(firstWord, model, f, namespace.length)
+    close_output(f, namespace.output)
