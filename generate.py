@@ -63,7 +63,7 @@ def generate_sequence(prev_word, model, output, length):
     output.write(prev_word + ' ')
     for i in range(1, length):
         choice_list = list()
-        if prev_word in model.keys():
+        if len(model[prev_word].items()) != 0:
             for word in model[prev_word].keys():
                 choice_list.extend([word] * model[prev_word][word])
         else:

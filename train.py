@@ -28,13 +28,16 @@ def input_parser():
 
 def push_bigrams_from_file(result_dict, input_file, lc):
     """Извлечь биграммы из файла в модель"""
+    last_word = "_START_"
     for line in input_file:
         tmp = re.findall(r'[a-zA-Zа-яА-Я]+', line)
-        for i, word in enumerate(tmp[:-1]):
+        for i, word in enumerate(tmp):
             if lc:
-                result_dict[word.lower()][tmp[i+1].lower()] += 1
+                result_dict[last_word.lower()][word.lower()] += 1
             else:
-                result_dict[word][tmp[i+1]] += 1
+                result_dict[last_word][word] += 1
+            last_word = word
+    result_dict[last_word] = {}
 
 
 def create_model(result_dict, input_dir, lc):
