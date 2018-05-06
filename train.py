@@ -41,20 +41,18 @@ def count_bigrams(input_dir, lc):
             tmp = re.findall(r'[a-zA-Zа-яА-Я]+', line)
             bigrams_counter[last_word, tmp[0]] += 1
             last_word = tmp[-1]
-            for word1, word2 in zip(tmp[:-1], tmp[1:]):
-                bigrams_counter[word1, word2] += 1
+            bigrams_counter.update(zip(tmp[:-1], tmp[1:]))
         bigrams_counter[last_word, "_END_"] += 1
     return bigrams_counter
 
 
 def get_input(input_dir):
     if input_dir is None:
-        yield sys.stdin
+        return sys.stdin
     for path, dirs, files in os.walk(input_dir):
         for file in files:
-            f = open(os.path.join(path, file), 'r')
-            yield f
-            f.close()
+            with open(os.path.join(path, file), 'r') as f:
+                yield f
 
 
 def create_model(bigrams_counter):
