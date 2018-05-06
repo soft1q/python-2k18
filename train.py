@@ -30,11 +30,15 @@ def input_parser():
     return parser
 
 
+start_word = "_START_"
+end_word = "_END_"
+
+
 def count_bigrams(input_dir, lc):
     """Извлечь биграммы из файла в модель"""
     bigrams_counter = Counter()
     for input_file in get_input(input_dir):
-        last_word = "_START_"
+        last_word = start_word
         for line in input_file:
             if lc:
                 line = line.lower()
@@ -42,7 +46,7 @@ def count_bigrams(input_dir, lc):
             bigrams_counter[last_word, tmp[0]] += 1
             last_word = tmp[-1]
             bigrams_counter.update(zip(tmp[:-1], tmp[1:]))
-        bigrams_counter[last_word, "_END_"] += 1
+        bigrams_counter[last_word, end_word] += 1
     return bigrams_counter
 
 
@@ -59,8 +63,8 @@ def create_model(bigrams_counter):
     """Создание модели в виде словаря"""
     result_dict = defaultdict(lambda: defaultdict(int))
     for (word1, word2), frequency in bigrams_counter.items():
-        if word1 != "_START_":
-            if word2 == "_END_" and len(result_dict[word1].keys()) == 0:
+        if word1 != start_word:
+            if word2 == end_word and len(result_dict[word1].keys()) == 0:
                 result_dict[word1] = {}
             else:
                 result_dict[word1][word2] = frequency
